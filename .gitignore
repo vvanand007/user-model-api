@@ -2,4 +2,4 @@
 node_modules
 
 #DB conf
-secrets.json
+config.json
