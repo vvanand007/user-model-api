@@ -3,8 +3,9 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const User = require("../models/user");
 
+const User = require("../models/user");
+const config = require("../../config.json");
 
 router.post("/signup", (req, res, next) => {
     if (req.body.password.length < 8) {
@@ -40,4 +41,31 @@ router.post("/signup", (req, res, next) => {
         })
 })
 
-module.exports = router 
+router.post("/signin", (req, res, next) => {
+    User.find({ email: req.body.email })
+        .exec()
+        .then(user => {
+            if (user.length < 1) {
+                return res.status(401).json({ message: "User not registered" })
+            }
+            bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+                if (err) {
+                    return res.status(401).json({ message: "Auth Failed" });
+                }
+                if (result) {
+                    const token = jwt.sign(
+                        { email: user[0].email, userid: user[0]._id },
+                        config.JWT_SECRET,
+                        { expiresIn: "1h" }
+                    )
+                    return res.status(200).json({ message: "Auth Successful", token: token })
+                }
+                return res.status(401).json({ message: "Password mismatch" });
+            })
+        })
+        .catch(err => {
+            res.status(400).json({ error: err });
+        })
+})
+
+module.exports = router
