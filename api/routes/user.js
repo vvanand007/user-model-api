@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
+const checkAuth = require("../middlewares/check-auth");
+
 const User = require("../models/user");
 const config = require("../../config.json");
 
@@ -65,6 +67,19 @@ router.post("/signin", (req, res, next) => {
         })
         .catch(err => {
             res.status(400).json({ error: err });
+        })
+})
+
+router.get("/", checkAuth, (req, res, next) => {
+    // res.status(200).json({ data: req.userData })
+    email = req.userData.email;
+    User.findOne({ email })
+        .exec()
+        .then(user => {
+            res.status(200).json({ data: user })
+        })
+        .catch(err => {
+            res.status(500).json({ error: err })
         })
 })
 
