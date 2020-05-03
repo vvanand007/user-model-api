@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const config = require("./config.json");
-const cors = require("./cors");
+const cors = require("cors");
 const userRouter = require("./api/routes/user")
 
 require("./db");
@@ -16,7 +16,7 @@ require("./db");
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors.cors);
+app.use(cors());
 
 app.use('/user', userRouter);
 
